@@ -27,6 +27,8 @@ public final class ClientCommands {
         availableCommands.add("update");
         availableCommands.add("execute_script");
         availableCommands.add("exit");
+        availableCommands.add("register_user");
+        availableCommands.add("connect_user");
 
         commandsNeedRoute = new ArrayList<>();
         commandsNeedRoute.add("add");

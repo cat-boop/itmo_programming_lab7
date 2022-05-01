@@ -1,10 +1,11 @@
 package com.lab7.client;
 
-import com.lab7.exceptions.ReadElementFromScriptException;
-import com.lab7.exceptions.RecursiveScriptException;
+import com.lab7.common.util.ConnectResponse;
+import com.lab7.client.client_exceptions.ReadElementFromScriptException;
+import com.lab7.client.client_exceptions.RecursiveScriptException;
 import com.lab7.common.util.Deserializer;
 import com.lab7.common.util.Request;
-import com.lab7.common.util.Response;
+import com.lab7.common.util.CommandResponse;
 import com.lab7.common.util.Serializer;
 
 import java.io.BufferedInputStream;
@@ -37,7 +38,18 @@ public class Application {
     public void startInteractiveMode() throws IOException {
         RouteReader consoleRouteReader = new RouteReader(consoleScanner, false);
 
-        connectToDB();
+        while (true) {
+            System.out.print("Вы хотите зарегистрироваться (1) или войти под существующим пользователем (2) ?: ");
+            String answer = consoleScanner.nextLine();
+            if ("1".equals(answer)) {
+                dbRequest("register_user");
+                break;
+            }
+            if ("2".equals(answer)) {
+                dbRequest("connect_user");
+                break;
+            }
+        }
 
         boolean clientAlive;
         do {
@@ -54,13 +66,13 @@ public class Application {
             if (commandAnalyzer.commandIsExit()) {
                 return false;
             }
-            if (commandAnalyzer.commandIsConnectToDB()) {
-                connectToDB();
+            if (commandAnalyzer.isDBCommand()) {
+                dbRequest(commandAnalyzer.getCommandName());
             } else if (commandAnalyzer.commandIsScript()) {
                 return executeScript(commandAnalyzer.getCommandArgument());
             } else {
                 sendRequest(RequestCreator.createRequest(command, routeReader));
-                Response response = (Response) receiveResponse();
+                CommandResponse response = (CommandResponse) receiveResponse();
                 System.out.println(response);
             }
         } catch (IllegalStateException | RecursiveScriptException e) {
@@ -69,7 +81,7 @@ public class Application {
         return true;
     }
 
-    private void connectToDB() throws IOException {
+    private void dbRequest(String dbRequestName) throws IOException {
         boolean clientConnected = false;
         do {
             System.out.print("Введите имя пользователя: ");
@@ -84,15 +96,15 @@ public class Application {
                 System.out.println("Пароль не может быть пустым");
                 continue;
             }
-            Request request = new Request("connect_to_db", clientName, clientPassword);
+            Request request = new Request(dbRequestName, clientName, clientPassword);
             sendRequest(request);
-            Response response = (Response) receiveResponse();
+            ConnectResponse response = (ConnectResponse) receiveResponse();
             if (response.isClientConnected()) {
                 clientConnected = true;
                 RequestCreator.setClientName(clientName);
                 RequestCreator.setClientPassword(clientPassword);
             }
-            System.out.println(response);
+            System.out.println(response.getConnectMessage());
         } while (!clientConnected);
     }
 
@@ -122,7 +134,7 @@ public class Application {
         return true;
     }
 
-    private void sendRequest(Serializable objectToSend) throws IOException {
+    private void sendRequest(Request objectToSend) throws IOException {
         Serializer serializer = new Serializer(objectToSend);
         if (serializer.possibleToSerialize()) {
             outputStream.write(serializer.serialize());

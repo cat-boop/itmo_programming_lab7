@@ -7,14 +7,14 @@ public class CommandAnalyzer {
     private boolean commandNeedRoute;
     private boolean commandScript;
     private boolean commandExit;
-    private boolean commandConnectToDB;
+    private boolean dbCommand;
 
     public CommandAnalyzer(String command) {
         commandHaveArgument = false;
         commandNeedRoute = false;
         commandScript = false;
         commandExit = false;
-        commandConnectToDB = false;
+        dbCommand = false;
 
         analyzeCommand(command);
     }
@@ -27,8 +27,8 @@ public class CommandAnalyzer {
         return commandExit;
     }
 
-    public boolean commandIsConnectToDB() {
-        return commandConnectToDB;
+    public boolean isDBCommand() {
+        return dbCommand;
     }
 
     public boolean isCommandHaveArgument() {
@@ -68,8 +68,8 @@ public class CommandAnalyzer {
         if ("execute_script".equals(commandName)) {
             commandScript = true;
         }
-        if ("connect_to_db".equals(commandName)) {
-            commandConnectToDB = true;
+        if ("connect_user".equals(commandName) || "register_user".equals(commandName)) {
+            dbCommand = true;
         }
         if ("exit".equals(commandName)) {
             commandExit = true;
