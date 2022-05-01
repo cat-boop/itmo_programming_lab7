@@ -1,6 +1,6 @@
 package com.lab7.common.util;
 
-import com.lab7.exceptions.DeserializeException;
+import com.lab7.common.common_exceptions.DeserializeException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
