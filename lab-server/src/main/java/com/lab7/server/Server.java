@@ -1,6 +1,9 @@
 package com.lab7.server;
 
+import com.lab7.server.client_communication.Application;
 import com.lab7.server.database.DBManager;
+import com.lab7.server.encryption.IEncryptor;
+import com.lab7.server.encryption.MD2Encryptor;
 import com.lab7.server.logger.ServerLogger;
 
 import java.io.IOException;
@@ -20,14 +23,16 @@ public final class Server {
 
     public static void main(String[] args) {
         try {
-            DBManager dbManager = new DBManager(System.getenv("DB_URL"), System.getenv("DB_USERNAME"), System.getenv("DB_PASSWORD"));
+            IEncryptor encryptor = new MD2Encryptor();
+            DBManager dbManager = new DBManager(System.getenv("DB_URL"), System.getenv("DB_USERNAME"), System.getenv("DB_PASSWORD"), encryptor);
             CollectionManager collectionManager = new CollectionManager(dbManager.readElementsFromDB());
             CommandManager commandManager = new CommandManager(dbManager, collectionManager);
             ServerLogger.logInfoMessage("Подключение к базе данных установлено, ожидание подключений клиентов");
 
             Scanner scanner = new Scanner(System.in);
             ServerConsoleListener serverConsoleListener = new ServerConsoleListener(scanner);
-            serverConsoleListener.start();
+            Thread thread = new Thread(serverConsoleListener);
+            thread.start();
 
             try (Selector selector = Selector.open();
                  ServerSocketChannel socketChannel = ServerSocketChannel.open()) {
@@ -41,9 +46,11 @@ public final class Server {
 
             } catch (IOException e) {
                 System.out.println("Непредвиденная ошибка на сервере");
+                ServerLogger.logErrorMessage(e.getMessage());
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+            ServerLogger.logErrorMessage(e.getMessage());
         }
     }
 }
