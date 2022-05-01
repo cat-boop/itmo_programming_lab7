@@ -1,34 +1,21 @@
 package com.lab7.common.util;
 
-import com.lab7.data.Route;
+import com.lab7.common.entity.Route;
+import com.lab7.common.interfaces.IResponse;
 
-import java.io.Serializable;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-public class Response implements Serializable {
+public class CommandResponse implements IResponse {
     private String serverMessage;
     private TreeSet<Route> collection;
-    private boolean clientConnected;
 
-    public Response(String serverMessage) {
+    public CommandResponse(String serverMessage) {
         this.serverMessage = serverMessage;
-        clientConnected = true;
     }
 
-    //TODO this bad?
-    public Response(String serverMessage, boolean clientConnected) {
-        this.serverMessage = serverMessage;
-        this.clientConnected = clientConnected;
-    }
-
-    public Response(TreeSet<Route> collection) {
+    public CommandResponse(TreeSet<Route> collection) {
         this.collection = collection;
-        clientConnected = true;
-    }
-
-    public boolean isClientConnected() {
-        return clientConnected;
     }
 
     @Override
