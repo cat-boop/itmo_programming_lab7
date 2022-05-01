@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 public final class Client {
     private static final int PORT = 1658;
-    private static final int TIMEOUT = 3000;
+    private static final int TIMEOUT = 5000;
 
     private Client() {
         throw new UnsupportedOperationException("This is an utility class and can not be instantiated");
@@ -18,7 +18,7 @@ public final class Client {
         String host = scanner.nextLine();
 
         try (Socket socket = new Socket(host, PORT)) {
-            //socket.setSoTimeout(TIMEOUT);
+            socket.setSoTimeout(TIMEOUT);
             Application application = new Application(scanner, socket.getInputStream(), socket.getOutputStream());
             application.startInteractiveMode();
         } catch (IOException e) {
