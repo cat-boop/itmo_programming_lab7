@@ -1,4 +1,6 @@
-package com.lab7.server;
+package com.lab7.server.client_communication;
+
+import com.lab7.server.client_communication.ChannelState;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

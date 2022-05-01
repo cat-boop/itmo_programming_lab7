@@ -1,9 +1,12 @@
-package com.lab7.server;
+package com.lab7.server.client_communication;
 
 import com.lab7.common.util.Deserializer;
 import com.lab7.common.interfaces.IResponse;
 import com.lab7.common.util.Request;
 import com.lab7.common.util.Serializer;
+import com.lab7.server.CommandExecutor;
+import com.lab7.server.CommandManager;
+import com.lab7.server.ServerConsoleListener;
 import com.lab7.server.logger.ServerLogger;
 
 import java.io.IOException;

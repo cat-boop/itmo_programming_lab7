@@ -1,4 +1,4 @@
-package com.lab7.server;
+package com.lab7.server.client_communication;
 
 public enum ChannelState {
     READY_TO_READ,

@@ -1,6 +1,7 @@
-package com.lab7.server;
+package com.lab7.server.client_communication;
 
 import com.lab7.common.util.Deserializer;
+import com.lab7.server.client_communication.ChannelState;
 import com.lab7.server.logger.ServerLogger;
 
 import java.io.IOException;
