@@ -1,25 +1,24 @@
 package com.lab7.server;
 
-import com.lab7.common.util.Request;
-import com.lab7.common.util.Response;
-import com.lab7.server.commands.AddCommand;
-import com.lab7.server.commands.AddIfMinCommand;
-import com.lab7.server.commands.ClearCommand;
-import com.lab7.server.commands.AbstractCommand;
-import com.lab7.server.commands.ConnectToDBCommand;
-import com.lab7.server.commands.CountGreaterThanDistanceCommand;
-import com.lab7.server.commands.CountLessThanDistanceCommand;
-import com.lab7.server.commands.DisconnectCommand;
-import com.lab7.server.commands.HelpCommand;
-import com.lab7.server.commands.InfoCommand;
-import com.lab7.server.commands.MaxByDistanceCommand;
-import com.lab7.server.commands.RemoveByIdCommand;
-import com.lab7.server.commands.RemoveGreaterCommand;
-import com.lab7.server.commands.RemoveLowerCommand;
-import com.lab7.server.commands.ShowCommand;
-import com.lab7.server.commands.UpdateCommand;
+import com.lab7.server.command.AddCommand;
+import com.lab7.server.command.AddIfMinCommand;
+import com.lab7.server.command.ClearCommand;
+import com.lab7.server.command.AbstractCommand;
+import com.lab7.server.command.ConnectUserCommand;
+import com.lab7.server.command.CountGreaterThanDistanceCommand;
+import com.lab7.server.command.CountLessThanDistanceCommand;
+import com.lab7.server.command.HelpCommand;
+import com.lab7.server.command.InfoCommand;
+import com.lab7.server.command.MaxByDistanceCommand;
+import com.lab7.server.command.RegisterUserCommand;
+import com.lab7.server.command.RemoveByIdCommand;
+import com.lab7.server.command.RemoveGreaterCommand;
+import com.lab7.server.command.RemoveLowerCommand;
+import com.lab7.server.command.ShowCommand;
+import com.lab7.server.command.UpdateCommand;
 import com.lab7.server.database.DBManager;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,50 +27,37 @@ import java.util.Map;
  */
 public class CommandManager {
     private static Map<String, AbstractCommand> commands;
+    private final DBManager dbManager;
 
     public CommandManager(DBManager dbManager, CollectionManager collectionManager) {
-        commands = new HashMap<>();
+        this.dbManager = dbManager;
+        commands = Collections.synchronizedMap(new HashMap<>());
         commands.put("add", new AddCommand(dbManager, collectionManager));
         commands.put("add_if_min", new AddIfMinCommand(dbManager, collectionManager));
         commands.put("clear", new ClearCommand(dbManager, collectionManager));
-        commands.put("count_greater_than_distance", new CountGreaterThanDistanceCommand(dbManager, collectionManager));
-        commands.put("count_less_than_distance", new CountLessThanDistanceCommand(dbManager, collectionManager));
-        commands.put("help", new HelpCommand(dbManager));
-        commands.put("info", new InfoCommand(dbManager, collectionManager));
-        commands.put("max_by_distance", new MaxByDistanceCommand(dbManager, collectionManager));
+        commands.put("count_greater_than_distance", new CountGreaterThanDistanceCommand(collectionManager));
+        commands.put("count_less_than_distance", new CountLessThanDistanceCommand(collectionManager));
+        commands.put("help", new HelpCommand());
+        commands.put("info", new InfoCommand(collectionManager));
+        commands.put("max_by_distance", new MaxByDistanceCommand(collectionManager));
         commands.put("remove_by_id", new RemoveByIdCommand(dbManager, collectionManager));
         commands.put("remove_greater", new RemoveGreaterCommand(dbManager, collectionManager));
         commands.put("remove_lower", new RemoveLowerCommand(dbManager, collectionManager));
-        commands.put("show", new ShowCommand(dbManager, collectionManager));
+        commands.put("show", new ShowCommand(collectionManager));
         commands.put("update", new UpdateCommand(dbManager, collectionManager));
-        commands.put("connect_to_db", new ConnectToDBCommand(dbManager));
-        commands.put("disconnect_from_db", new DisconnectCommand(dbManager));
+        commands.put("connect_user", new ConnectUserCommand(dbManager));
+        commands.put("register_user", new RegisterUserCommand(dbManager));
     }
 
     public static Map<String, AbstractCommand> getCommands() {
         return commands;
     }
 
-    public Response executeCommand(Request request) {
-        String commandName = request.getCommandName();
-        AbstractCommand command = commands.get(commandName);
-        return command.execute(request);
+    public AbstractCommand getCommandByName(String name) {
+        return commands.get(name);
     }
 
-//    public LoginResponse connectClient(LoginRequest loginRequest) {
-//        if (dbManager.checkIfUserExist(loginRequest.getClientName())) {
-//            System.out.println("Пользователь с таким именем существует");
-//            if (dbManager.checkIfUserConnect(request)) {
-//                connectedClients.add(loginRequest.getClientName());
-//                return new LoginResponse("Клиент успешно подключился", true);
-//            } else {
-//                return new LoginResponse("Ошибка при вводе пароля", false);
-//            }
-//        }
-//        System.out.println("Пользователя с таким именем не существует, пытаюсь зарегистрировать нового");
-//        if (dbManager.registerNewUser(loginRequest)) {
-//            return new LoginResponse("Новый клиент успешно зарегистрирован", true);
-//        }
-//        return new LoginResponse("Непредвиденная ошибка", false);
-//    }
+    public DBManager getDbManager() {
+        return dbManager;
+    }
 }
