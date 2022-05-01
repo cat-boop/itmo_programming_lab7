@@ -1,6 +1,6 @@
 package com.lab7.client;
 
-import com.lab7.data.Route;
+import com.lab7.common.entity.Route;
 import com.lab7.common.util.Request;
 
 public final class RequestCreator {

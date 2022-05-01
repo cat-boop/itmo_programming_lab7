@@ -1,9 +1,9 @@
 package com.lab7.client;
 
-import com.lab7.data.Coordinates;
-import com.lab7.data.Location;
-import com.lab7.data.Route;
-import com.lab7.exceptions.ReadElementFromScriptException;
+import com.lab7.common.entity.Coordinates;
+import com.lab7.common.entity.Location;
+import com.lab7.common.entity.Route;
+import com.lab7.client.client_exceptions.ReadElementFromScriptException;
 
 import java.util.Locale;
 import java.util.Scanner;

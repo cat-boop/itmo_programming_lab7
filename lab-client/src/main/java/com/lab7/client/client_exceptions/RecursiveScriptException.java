@@ -1,4 +1,4 @@
-package com.lab7.common.exceptions;
+package com.lab7.client.client_exceptions;
 
 /**
  * exception class shows that script contains recursion
