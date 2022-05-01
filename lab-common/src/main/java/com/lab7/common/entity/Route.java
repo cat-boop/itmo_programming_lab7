@@ -1,4 +1,4 @@
-package com.lab7.data;
+package com.lab7.common.entity;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

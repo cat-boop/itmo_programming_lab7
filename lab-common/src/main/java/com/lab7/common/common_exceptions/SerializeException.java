@@ -1,4 +1,4 @@
-package com.lab7.exceptions;
+package com.lab7.common.exceptions;
 
 public class SerializeException extends RuntimeException {
     public SerializeException(String message) {

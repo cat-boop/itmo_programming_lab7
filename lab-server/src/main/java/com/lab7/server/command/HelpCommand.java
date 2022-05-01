@@ -1,7 +1,7 @@
 package com.lab7.server.commands;
 
 import com.lab7.common.util.Request;
-import com.lab7.common.util.Response;
+import com.lab7.common.util.CommandResponse;
 import com.lab7.server.CommandManager;
 import com.lab7.server.database.DBManager;
 
@@ -16,10 +16,10 @@ public class HelpCommand extends AbstractCommand {
     }
 
     @Override
-    public Response execute(Request request) {
+    public CommandResponse execute(Request request) {
         if (!dbManager.getConnectedClients().contains(request.getClientName())) {
-            return new Response("Клиент с таким именем не подключен");
+            return new CommandResponse("Клиент с таким именем не подключен");
         }
-        return new Response(CommandManager.getCommands().entrySet().stream().filter(entry -> !entry.getValue().isServerCommand()).map(entry -> entry.getKey() + ": " + entry.getValue().getCommandDescription()).collect(Collectors.joining("\n")));
+        return new CommandResponse(CommandManager.getCommands().entrySet().stream().filter(entry -> !entry.getValue().isServerCommand()).map(entry -> entry.getKey() + ": " + entry.getValue().getCommandDescription()).collect(Collectors.joining("\n")));
     }
 }

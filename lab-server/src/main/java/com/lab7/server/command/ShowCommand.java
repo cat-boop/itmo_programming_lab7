@@ -1,7 +1,7 @@
 package com.lab7.server.commands;
 
 import com.lab7.common.util.Request;
-import com.lab7.common.util.Response;
+import com.lab7.common.util.CommandResponse;
 import com.lab7.server.CollectionManager;
 import com.lab7.server.database.DBManager;
 
@@ -16,10 +16,10 @@ public class ShowCommand extends AbstractCommand {
     }
 
     @Override
-    public Response execute(Request request) {
+    public CommandResponse execute(Request request) {
         if (!dbManager.getConnectedClients().contains(request.getClientName())) {
-            return new Response("Клиент с таким именем не подключен");
+            return new CommandResponse("Клиент с таким именем не подключен");
         }
-        return new Response(collectionManager.getCollection());
+        return new CommandResponse(collectionManager.getCollection());
     }
 }

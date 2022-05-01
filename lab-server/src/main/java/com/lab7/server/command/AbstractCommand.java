@@ -1,7 +1,7 @@
 package com.lab7.server.commands;
 
+import com.lab7.common.util.IResponse;
 import com.lab7.common.util.Request;
-import com.lab7.common.util.Response;
 
 public abstract class AbstractCommand {
     private final String commandDescription;
@@ -20,5 +20,5 @@ public abstract class AbstractCommand {
         return isServerCommand;
     }
 
-    public abstract Response execute(Request request);
+    public abstract IResponse execute(Request request);
 }

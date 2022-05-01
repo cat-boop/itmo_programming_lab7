@@ -1,8 +1,9 @@
-package com.lab7.server.commands;
+package com.lab7.server.command;
 
+import com.lab7.common.util.ConnectResponse;
 import com.lab7.common.util.Request;
-import com.lab7.common.util.Response;
 import com.lab7.server.database.DBManager;
+import com.lab7.server.logger.ServerLogger;
 
 public class ConnectToDBCommand extends AbstractCommand {
     private final DBManager dbManager;
@@ -13,22 +14,21 @@ public class ConnectToDBCommand extends AbstractCommand {
     }
 
     @Override
-    public Response execute(Request request) {
+    public ConnectResponse execute(Request request) {
         if (dbManager.checkIfUserExist(request.getClientName())) {
-            //System.out.println("Пользователь с таким именем существует");
+            ServerLogger.logDebugMessage("Такой пользователь существует, проверка пароля");
             if (dbManager.checkIfUserConnect(request)) {
-                dbManager.addConnectedClient(request.getClientName());
                 System.out.println("Клиент " + request.getClientName() + " подключился");
-                return new Response("Клиент успешно подключился", true);
+                return new ConnectResponse("Клиент успешно подключился", true);
             } else {
-                return new Response("Ошибка при вводе пароля", false);
+                return new ConnectResponse("Ошибка при вводе пароля", false);
             }
         }
-        System.out.println("Пользователя с таким именем не существует, пытаюсь зарегистрировать нового");
+        ServerLogger.logDebugMessage("Пользователя с таким именем не существует, пытаюсь зарегистрировать нового");
         if (dbManager.registerNewUser(request)) {
             System.out.println("Клиент " + request.getClientName() + " подключился");
-            return new Response("Новый клиент успешно зарегистрирован", true);
+            return new ConnectResponse("Новый клиент успешно зарегистрирован", true);
         }
-        return new Response("Непредвиденная ошибка", false);
+        return new ConnectResponse("Непредвиденная ошибка", false);
     }
 }
