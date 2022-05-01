@@ -1,6 +1,6 @@
 package com.lab7.common.util;
 
-import com.lab7.data.Route;
+import com.lab7.common.entity.Route;
 
 import java.io.Serializable;
 
@@ -29,12 +29,12 @@ public class Request implements Serializable {
         return clientName;
     }
 
-    public String getCommandName() {
-        return commandName;
-    }
-
     public String getClientPassword() {
         return clientPassword;
+    }
+
+    public String getCommandName() {
+        return commandName;
     }
 
     public Number getCommandArgument() {
