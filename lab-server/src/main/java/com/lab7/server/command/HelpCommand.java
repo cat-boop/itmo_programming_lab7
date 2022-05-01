@@ -1,25 +1,19 @@
-package com.lab7.server.commands;
+package com.lab7.server.command;
 
 import com.lab7.common.util.Request;
 import com.lab7.common.util.CommandResponse;
 import com.lab7.server.CommandManager;
-import com.lab7.server.database.DBManager;
 
 import java.util.stream.Collectors;
 
 public class HelpCommand extends AbstractCommand {
-    private final DBManager dbManager;
 
-    public HelpCommand(DBManager dbManager) {
+    public HelpCommand() {
         super("вывести справку по доступным командам", false);
-        this.dbManager = dbManager;
     }
 
     @Override
     public CommandResponse execute(Request request) {
-        if (!dbManager.getConnectedClients().contains(request.getClientName())) {
-            return new CommandResponse("Клиент с таким именем не подключен");
-        }
-        return new CommandResponse(CommandManager.getCommands().entrySet().stream().filter(entry -> !entry.getValue().isServerCommand()).map(entry -> entry.getKey() + ": " + entry.getValue().getCommandDescription()).collect(Collectors.joining("\n")));
+        return new CommandResponse(CommandManager.getCommands().entrySet().stream().map(entry -> entry.getKey() + ": " + entry.getValue().getCommandDescription()).collect(Collectors.joining("\n")));
     }
 }

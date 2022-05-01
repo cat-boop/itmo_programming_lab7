@@ -1,6 +1,6 @@
-package com.lab7.server.commands;
+package com.lab7.server.command;
 
-import com.lab7.data.Route;
+import com.lab7.common.entity.Route;
 import com.lab7.common.util.Request;
 import com.lab7.common.util.CommandResponse;
 import com.lab7.server.CollectionManager;
@@ -11,16 +11,13 @@ public class AddIfMinCommand extends AbstractCommand {
     private final CollectionManager collectionManager;
 
     public AddIfMinCommand(DBManager dbManager, CollectionManager collectionManager) {
-        super("добавить новый элемент в коллекцию, если его значение меньше, чем у наименьшего элемента этой коллекции", false);
+        super("добавить новый элемент в коллекцию, если его значение меньше, чем у наименьшего элемента этой коллекции", true);
         this.dbManager = dbManager;
         this.collectionManager = collectionManager;
     }
 
     @Override
     public CommandResponse execute(Request request) {
-        if (!dbManager.getConnectedClients().contains(request.getClientName())) {
-            return new CommandResponse("Клиент с таким именем не подключен");
-        }
         Route route = request.getRouteToSend();
         if (collectionManager.getCollection().stream().allMatch((collectionRoute) -> Double.compare(route.getDistance(), collectionRoute.getDistance()) < 0)) {
             long nextId = dbManager.addRouteToDB(route);

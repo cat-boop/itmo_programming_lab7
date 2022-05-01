@@ -1,25 +1,19 @@
-package com.lab7.server.commands;
+package com.lab7.server.command;
 
 import com.lab7.common.util.Request;
 import com.lab7.common.util.CommandResponse;
 import com.lab7.server.CollectionManager;
-import com.lab7.server.database.DBManager;
 
 public class ShowCommand extends AbstractCommand {
-    private final DBManager dbManager;
     private final CollectionManager collectionManager;
 
-    public ShowCommand(DBManager dbManager, CollectionManager collectionManager) {
-        super("вывести в стандартный поток вывода все элементы коллекции в строковом представлении", false);
-        this.dbManager = dbManager;
+    public ShowCommand(CollectionManager collectionManager) {
+        super("вывести в стандартный поток вывода все элементы коллекции в строковом представлении", true);
         this.collectionManager = collectionManager;
     }
 
     @Override
     public CommandResponse execute(Request request) {
-        if (!dbManager.getConnectedClients().contains(request.getClientName())) {
-            return new CommandResponse("Клиент с таким именем не подключен");
-        }
         return new CommandResponse(collectionManager.getCollection());
     }
 }

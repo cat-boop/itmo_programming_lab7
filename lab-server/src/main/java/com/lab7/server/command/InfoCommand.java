@@ -1,25 +1,19 @@
-package com.lab7.server.commands;
+package com.lab7.server.command;
 
 import com.lab7.common.util.Request;
 import com.lab7.common.util.CommandResponse;
 import com.lab7.server.CollectionManager;
-import com.lab7.server.database.DBManager;
 
 public class InfoCommand extends AbstractCommand {
-    private final DBManager dbManager;
     private final CollectionManager collectionManager;
 
-    public InfoCommand(DBManager dbManager, CollectionManager collectionManager) {
-        super("вывести в стандартный поток вывода информацию о коллекции (тип, дата инициализации, количество элементов и т.д.)", false);
-        this.dbManager = dbManager;
+    public InfoCommand(CollectionManager collectionManager) {
+        super("вывести в стандартный поток вывода информацию о коллекции (тип, дата инициализации, количество элементов и т.д.)", true);
         this.collectionManager = collectionManager;
     }
 
     @Override
     public CommandResponse execute(Request request) {
-        if (!dbManager.getConnectedClients().contains(request.getClientName())) {
-            return new CommandResponse("Клиент с таким именем не подключен");
-        }
         return new CommandResponse("Тип коллекции - " + collectionManager.getCollectionName() + "\n"
                 + "Количество элементов - " + collectionManager.getSize() + "\n"
                 + "Дата инициализации - " + collectionManager.getCreationDate());
