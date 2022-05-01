@@ -6,7 +6,7 @@ import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-public class ServerConsoleListener extends Thread {
+public class ServerConsoleListener implements Runnable {
     private static boolean serverShouldWork;
     private final Scanner scanner;
 
