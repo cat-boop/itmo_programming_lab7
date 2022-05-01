@@ -6,8 +6,8 @@ import java.io.Serializable;
  * Coordinates of Route represented by x, y coordinates
  */
 public class Coordinates implements Serializable {
-    private int x; //Максимальное значение поля: 412
-    private Long y; //Поле не может быть null
+    private final int x; //Максимальное значение поля: 412
+    private final Long y; //Поле не может быть null
 
     public Coordinates(int x, Long y) {
         this.x = x;

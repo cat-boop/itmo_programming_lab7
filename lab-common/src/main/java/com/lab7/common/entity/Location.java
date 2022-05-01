@@ -6,10 +6,10 @@ import java.io.Serializable;
  * Location of Route
  */
 public class Location implements Serializable {
-    private Integer x; //Поле не может быть null
-    private int y;
-    private Double z; //Поле не может быть null
-    private String name; //Строка не может быть пустой, Поле не может быть null
+    private final Integer x; //Поле не может быть null
+    private final int y;
+    private final Double z; //Поле не может быть null
+    private final String name; //Строка не может быть пустой, Поле не может быть null
 
     public Location(Integer x, int y, Double z, String name) {
         this.x = x;
