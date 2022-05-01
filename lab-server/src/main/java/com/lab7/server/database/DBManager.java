@@ -1,10 +1,13 @@
 package com.lab7.server.database;
 
-import com.lab7.data.Coordinates;
-import com.lab7.data.Location;
-import com.lab7.data.Route;
+import com.lab7.common.entity.Coordinates;
+import com.lab7.common.entity.Location;
+import com.lab7.common.entity.Route;
 import com.lab7.common.util.Request;
+import com.lab7.server.encryption.IEncryptor;
+import com.lab7.server.logger.ServerLogger;
 
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -13,36 +16,21 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.util.HashSet;
 import java.util.NavigableSet;
-import java.util.Set;
 import java.util.TreeSet;
 
-//TODO add logging and password encrypting and password checking
 public class DBManager {
     private final Connection connection;
-    private final Set<String> connectedClients;
+    private final IEncryptor encryptor;
 
-    public DBManager(String dbUrl, String username, String password) throws SQLException {
+    public DBManager(String dbUrl, String username, String password, IEncryptor encryptor) throws SQLException {
         connection = DriverManager.getConnection(dbUrl, username, password);
         if (connection != null) {
-            System.out.println("Соединение успешно установлено");
-            connectedClients = new HashSet<>();
+            System.out.println("Соединение с базой данных успешно установлено");
+            this.encryptor = encryptor;
         } else {
-            throw new SQLException("Соединение не установлено");
+            throw new SQLException("Соединение с базой данных не установлено");
         }
-    }
-
-    public void addConnectedClient(String clientName) {
-        connectedClients.add(clientName);
-    }
-
-    public boolean disconnectClient(String clientName) {
-        return connectedClients.remove(clientName);
-    }
-
-    public Set<String> getConnectedClients() {
-        return connectedClients;
     }
 
     public NavigableSet<Route> readElementsFromDB() throws SQLException {
@@ -83,7 +71,7 @@ public class DBManager {
             resultSet.next();
             return resultSet.getLong(1);
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            ServerLogger.logErrorMessage(e.getMessage());
             return -1;
         }
     }
@@ -94,7 +82,7 @@ public class DBManager {
             preparedStatement.executeUpdate();
             return true;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            ServerLogger.logErrorMessage(e.getMessage());
             return false;
         }
     }
@@ -106,7 +94,7 @@ public class DBManager {
             preparedStatement.executeUpdate();
             return true;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            ServerLogger.logErrorMessage(e.getMessage());
             return false;
         }
     }
@@ -118,7 +106,7 @@ public class DBManager {
             preparedStatement.executeUpdate();
             return true;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            ServerLogger.logErrorMessage(e.getMessage());
             return false;
         }
     }
@@ -131,7 +119,7 @@ public class DBManager {
             preparedStatement.executeUpdate();
             return true;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            ServerLogger.logErrorMessage(e.getMessage());
             return false;
         }
     }
@@ -144,7 +132,7 @@ public class DBManager {
             preparedStatement.executeUpdate();
             return true;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            ServerLogger.logErrorMessage(e.getMessage());
             return false;
         }
     }
@@ -156,8 +144,7 @@ public class DBManager {
             ResultSet resultSet = preparedStatement.executeQuery();
             return resultSet.next();
         } catch (SQLException e) {
-            //System.out.println("aaaa");
-            System.out.println(e.getMessage());
+            ServerLogger.logErrorMessage(e.getMessage());
             return false;
         }
     }
@@ -166,11 +153,11 @@ public class DBManager {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(DBRequest.CHECK_IF_CLIENT_ENTER_RIGHT_PASSWORD.getRequest());
             preparedStatement.setString(1, request.getClientName());
-            preparedStatement.setString(2, request.getClientPassword());
+            preparedStatement.setString(2, encryptor.encrypt(request.getClientPassword()));
             ResultSet resultSet = preparedStatement.executeQuery();
             return resultSet.next();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
+        } catch (SQLException | NoSuchAlgorithmException e) {
+            ServerLogger.logErrorMessage(e.getMessage());
             return false;
         }
     }
@@ -179,11 +166,11 @@ public class DBManager {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(DBRequest.REGISTER_NEW_CLIENT.getRequest());
             preparedStatement.setString(1, request.getClientName());
-            preparedStatement.setString(2, request.getClientPassword());
+            preparedStatement.setString(2, encryptor.encrypt(request.getClientPassword()));
             preparedStatement.executeUpdate();
             return true;
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
+        } catch (SQLException | NoSuchAlgorithmException e) {
+            ServerLogger.logErrorMessage(e.getMessage());
             return false;
         }
     }
