@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-public final class Serializer {
+public class Serializer {
     private byte[] serializedObject;
     private final Serializable objectToSerialize;
     private boolean alreadySerialized;
