@@ -5,4 +5,5 @@ public enum ChannelState {
     READING,
     READY_TO_WRITE,
     WRITING,
+    ERROR;
 }

@@ -1,7 +1,6 @@
 package com.lab7.server.client_communication;
 
 import com.lab7.common.util.Deserializer;
-import com.lab7.server.client_communication.ChannelState;
 import com.lab7.server.logger.ServerLogger;
 
 import java.io.IOException;
@@ -33,7 +32,7 @@ public class PackageReceiver implements Runnable {
         try {
             int bytesRead = socketChannel.read(buffer);
             if (bytesRead == -1) {
-                throw new IOException("Клиент отключился");
+                throw new IOException();
             }
 
             ByteBuffer newBuffer = ByteBuffer.allocate(serializedRequest.capacity() + bytesRead);
@@ -47,15 +46,12 @@ public class PackageReceiver implements Runnable {
                 channelStates.put(socketChannel, ChannelState.READY_TO_WRITE);
                 socketChannel.register(selector, SelectionKey.OP_WRITE);
             } else {
+                channelStates.put(socketChannel, ChannelState.READY_TO_READ);
                 ServerLogger.logDebugMessage("Продолжаю считывать большой пакет");
             }
         } catch (IOException e) {
-            System.out.println(e.getMessage());
-            try {
-                socketChannel.close();
-            } catch (IOException a) {
-                //System.out.println(a.getMessage());
-            }
+            channelStates.put(socketChannel, ChannelState.ERROR);
+            channels.put(socketChannel, null);
         }
     }
 }

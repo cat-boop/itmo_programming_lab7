@@ -1,9 +1,7 @@
 package com.lab7.server.client_communication;
 
 import com.lab7.common.util.Deserializer;
-import com.lab7.common.interfaces.IResponse;
 import com.lab7.common.util.Request;
-import com.lab7.common.util.Serializer;
 import com.lab7.server.CommandExecutor;
 import com.lab7.server.CommandManager;
 import com.lab7.server.ServerConsoleListener;
@@ -47,14 +45,19 @@ public class Application {
             while (selectionKeys.hasNext()) {
                 SelectionKey key = selectionKeys.next();
                 selectionKeys.remove();
-                if (key.isValid()) {
-                    if (key.isAcceptable()) {
-                        acceptConnection();
-                    } else if (key.isReadable()) {
-                        receiveRequest(key);
-                    } else if (key.isWritable()) {
-                        sendResponse(key);
+                try {
+                    if (key.isValid()) {
+                        if (key.isAcceptable()) {
+                            acceptConnection();
+                        } else if (key.isReadable()) {
+                            receiveRequest(key);
+                        } else if (key.isWritable()) {
+                            sendResponse(key);
+                        }
                     }
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                    key.channel().close();
                 }
             }
         }
@@ -62,40 +65,40 @@ public class Application {
 
     private void acceptConnection() throws IOException {
         SocketChannel socketChannel = serverSocketChannel.accept();
-        channels.put(socketChannel, ByteBuffer.allocate(0));
-        channelStates.put(socketChannel, ChannelState.READY_TO_READ);
         socketChannel.configureBlocking(false);
         socketChannel.register(selector, SelectionKey.OP_READ);
+
+        channels.put(socketChannel, ByteBuffer.allocate(0));
+        channelStates.put(socketChannel, ChannelState.READY_TO_READ);
     }
 
-    private void receiveRequest(SelectionKey key) {
+    private void receiveRequest(SelectionKey key) throws IOException {
         SocketChannel socketChannel = (SocketChannel) key.channel();
         if (channelStates.get(socketChannel) == ChannelState.READY_TO_READ) {
             channelStates.put(socketChannel, ChannelState.READING);
             PackageReceiver packageReceiver = new PackageReceiver(selector, socketChannel, channels, channelStates);
             new Thread(packageReceiver).start();
         }
+        if (channelStates.get(socketChannel) == ChannelState.ERROR || channels.get(socketChannel) == null) {
+            throw new IOException("Клиент отключился");
+        }
     }
 
-    private void sendResponse(SelectionKey key) {
+    private void sendResponse(SelectionKey key) throws IOException {
         SocketChannel socketChannel = (SocketChannel) key.channel();
 
         if (channelStates.get(socketChannel) == ChannelState.READY_TO_WRITE) {
             channelStates.put(socketChannel, ChannelState.WRITING);
+
             Deserializer deserializer = new Deserializer(channels.get(socketChannel).array());
             Request request = (Request) deserializer.deserialize();
             CommandExecutor commandExecutor = new CommandExecutor(commandManager, request);
-            commandExecutor.fork();
-            IResponse response = commandExecutor.join();
-            Serializer serializer = new Serializer(response);
-            if (serializer.possibleToSerialize()) {
-                channels.put(socketChannel, ByteBuffer.wrap(serializer.serialize()));
-            } else {
-                channels.put(socketChannel, ByteBuffer.wrap("Ошибка при сериализации ответа".getBytes()));
-            }
-            PackageSender packageSender = new PackageSender(selector, socketChannel, channels, channelStates);
+            PackageSender packageSender = new PackageSender(selector, socketChannel, channels, channelStates, commandExecutor);
             Thread thread = new Thread(packageSender);
             thread.start();
+        }
+        if (channelStates.get(socketChannel) == ChannelState.ERROR || channels.get(socketChannel) == null) {
+            throw new IOException("Клиент отключился");
         }
     }
 }
