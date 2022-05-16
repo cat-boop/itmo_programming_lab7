@@ -17,10 +17,12 @@ public class ClearCommand extends AbstractCommand {
 
     @Override
     public CommandResponse execute(Request request) {
-        if (dbManager.deleteClientRoutes(request.getClientName())) {
-            collectionManager.clearClientRoutes(request.getClientName());
-            return new CommandResponse("Из коллекции удалены все ваши объекты");
+        synchronized (dbManager) {
+            if (dbManager.deleteClientRoutes(request.getClientName())) {
+                collectionManager.clearClientRoutes(request.getClientName());
+                return new CommandResponse("Из коллекции удалены все ваши объекты");
+            }
+            return new CommandResponse("Ошибка при удалении из базы данных");
         }
-        return new CommandResponse("Ошибка при удалении из базы данных");
     }
 }

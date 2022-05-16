@@ -23,14 +23,16 @@ public class RemoveByIdCommand extends AbstractCommand {
         CommandResponse responseToReturn;
         long id = request.getCommandArgument().longValue();
         try {
-            Route route = collectionManager.getRouteById(id);
-            if (!route.getClientName().equals(request.getClientName())) {
-                responseToReturn = new CommandResponse("Вы не владелец данного элемента, поэтому вы не можете удалить его из коллекции");
-            } else if (dbManager.deleteRouteByID(id)) {
-                collectionManager.removeById(id);
-                responseToReturn = new CommandResponse("Элемент с id = " + id + " удален из коллекции");
-            } else {
-                responseToReturn = new CommandResponse("Ошибка при удалении из базы данных");
+            synchronized (dbManager) {
+                Route route = collectionManager.getRouteById(id);
+                if (!route.getClientName().equals(request.getClientName())) {
+                    responseToReturn = new CommandResponse("Вы не владелец данного элемента, поэтому вы не можете удалить его из коллекции");
+                } else if (dbManager.deleteRouteByID(id)) {
+                    collectionManager.removeById(id);
+                    responseToReturn = new CommandResponse("Элемент с id = " + id + " удален из коллекции");
+                } else {
+                    responseToReturn = new CommandResponse("Ошибка при удалении из базы данных");
+                }
             }
         } catch (NoSuchElementException e) {
             responseToReturn = new CommandResponse("Элемента с id = " + id + " не существует");

@@ -19,12 +19,14 @@ public class AddCommand extends AbstractCommand {
     @Override
     public CommandResponse execute(Request request) {
         Route route = request.getRouteToSend();
-        long nextId = dbManager.addRouteToDB(route);
-        if (nextId != -1) {
-            route.setId(nextId);
-            collectionManager.add(route);
-            return new CommandResponse("Элемент успешно добавлен");
+        synchronized (dbManager) {
+            long nextId = dbManager.addRouteToDB(route);
+            if (nextId != -1) {
+                route.setId(nextId);
+                collectionManager.add(route);
+                return new CommandResponse("Элемент успешно добавлен");
+            }
+            return new CommandResponse("Ошибка при добавлении элемента, возможно, такой элемент уже существует");
         }
-        return new CommandResponse("Ошибка при добавлении элемента, возможно, такой элемент уже существует");
     }
 }

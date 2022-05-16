@@ -15,13 +15,15 @@ public class RegisterUserCommand extends AbstractCommand {
 
     @Override
     public IResponse execute(Request request) {
-        if (dbManager.checkIfUserExist(request.getClientName())) {
-            return new ConnectResponse("Пользователь с таким именем уже существует", false);
+        synchronized (dbManager) {
+            if (dbManager.checkIfUserExist(request.getClientName())) {
+                return new ConnectResponse("Пользователь с таким именем уже существует", false);
+            }
+            if (dbManager.registerNewUser(request)) {
+                System.out.println("Клиент " + request.getClientName() + " подключился");
+                return new ConnectResponse("Новый клиент зарегистрированы", true);
+            }
+            return new ConnectResponse("Непредвиденная ошибка", false);
         }
-        if (dbManager.registerNewUser(request)) {
-            System.out.println("Клиент " + request.getClientName() + " подключился");
-            return new ConnectResponse("Новый клиент зарегистрированы", true);
-        }
-        return new ConnectResponse("Непредвиденная ошибка", false);
     }
 }

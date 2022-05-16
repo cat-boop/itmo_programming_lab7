@@ -19,9 +19,11 @@ public class RemoveGreaterCommand extends AbstractCommand {
     public CommandResponse execute(Request request) {
         String clientName = request.getClientName();
         double distance = request.getCommandArgument().doubleValue();
-        if (dbManager.deleteRoutesGreaterThanDistance(clientName, distance)) {
-            return new CommandResponse("Было удалено " + collectionManager.removeGreater(clientName, distance) + " элементов");
+        synchronized (dbManager) {
+            if (dbManager.deleteRoutesGreaterThanDistance(clientName, distance)) {
+                return new CommandResponse("Было удалено " + collectionManager.removeGreater(clientName, distance) + " элементов");
+            }
+            return new CommandResponse("Ошибка при удалении элементов из базы данных");
         }
-        return new CommandResponse("Ошибка при удалении элементов из базы данных");
     }
 }

@@ -20,13 +20,15 @@ public class AddIfMinCommand extends AbstractCommand {
     public CommandResponse execute(Request request) {
         Route route = request.getRouteToSend();
         if (collectionManager.getCollection().stream().allMatch((collectionRoute) -> Double.compare(route.getDistance(), collectionRoute.getDistance()) < 0)) {
-            long nextId = dbManager.addRouteToDB(route);
-            if (nextId != -1) {
-                route.setId(nextId);
-                collectionManager.add(route);
-                return new CommandResponse("Элемент успешно добавлен");
-            } else {
-                return new CommandResponse("Ошибка при добавлении в базу данных");
+            synchronized (dbManager) {
+                long nextId = dbManager.addRouteToDB(route);
+                if (nextId != -1) {
+                    route.setId(nextId);
+                    collectionManager.add(route);
+                    return new CommandResponse("Элемент успешно добавлен");
+                } else {
+                    return new CommandResponse("Ошибка при добавлении в базу данных");
+                }
             }
         }
         return new CommandResponse("Новый путь не меньше минимального");

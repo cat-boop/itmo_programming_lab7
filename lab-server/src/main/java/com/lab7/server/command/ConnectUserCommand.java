@@ -14,15 +14,17 @@ public class ConnectUserCommand extends AbstractCommand {
 
     @Override
     public ConnectResponse execute(Request request) {
-        if (dbManager.checkIfUserExist(request.getClientName())) {
-            if (dbManager.checkIfUserConnect(request)) {
-                System.out.println("Клиент " + request.getClientName() + " подключился");
-                return new ConnectResponse("Клиент успешно подключился", true);
+        synchronized (dbManager) {
+            if (dbManager.checkIfUserExist(request.getClientName())) {
+                if (dbManager.checkIfUserConnect(request)) {
+                    System.out.println("Клиент " + request.getClientName() + " подключился");
+                    return new ConnectResponse("Клиент успешно подключился", true);
+                } else {
+                    return new ConnectResponse("Ошибка при вводе пароля", false);
+                }
             } else {
-                return new ConnectResponse("Ошибка при вводе пароля", false);
+                return new ConnectResponse("Пользователя с таким именем не существует", false);
             }
-        } else {
-            return new ConnectResponse("Пользователя с таким именем не существует", false);
         }
     }
 }
