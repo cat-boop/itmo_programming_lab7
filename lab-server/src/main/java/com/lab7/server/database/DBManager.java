@@ -26,10 +26,22 @@ public class DBManager {
     public DBManager(String dbUrl, String username, String password, IEncryptor encryptor) throws SQLException {
         connection = DriverManager.getConnection(dbUrl, username, password);
         if (connection != null) {
-            System.out.println("Соединение с базой данных успешно установлено");
             this.encryptor = encryptor;
+            createDB();
         } else {
             throw new SQLException("Соединение с базой данных не установлено");
+        }
+    }
+
+    private void createDB() {
+        try {
+            PreparedStatement statement1 = connection.prepareStatement(DBRequest.CREATE_CLIENT_TABLE.getRequest());
+            PreparedStatement statement2 = connection.prepareStatement(DBRequest.CREATE_ROUTE_TABLE.getRequest());
+
+            statement1.execute();
+            statement2.execute();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
     }
 
