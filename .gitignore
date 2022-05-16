@@ -5,3 +5,5 @@
 *.iml
 .idea
 *.jar
+helios.txt
+serverLogs.log
